@@ -1,0 +1,9 @@
+[submodule "aglio"]
+	path = aglio
+	url = git@github.com:dominicpoeschko/aglio.git
+[submodule "kvasir"]
+	path = kvasir
+	url = git@github.com:dominicpoeschko/kvasir.git
+[submodule "kvasir_rp2040"]
+	path = kvasir_rp2040
+	url = git@github.com:dominicpoeschko/kvasir_rp2040.git
