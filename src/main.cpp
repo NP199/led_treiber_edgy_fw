@@ -17,11 +17,19 @@ using packager = aglio::Packager<aglio::CrcConfig<Crc>>;
 int main() {
     UC_LOG_D("{}", CMakeGitVersion::FullVersion);
     auto next = Clock::now();
+    //auto off = Clock::now();
+    std::uint16_t Duty = (Pwm::getTop() * (100*255)) / (255*255);
+    UC_LOG_D("Duty: {} getTop:{}", Duty, Pwm::getTop());
+    Pwm::setDuty(Duty);
+    apply(set(HW::Pin::chip_en{}));
     while(true) {
         auto const now = Clock::now();
+
         if(now > next) {
-            UC_LOG_D("foo");
+            next = Clock::now();
+            UC_LOG_D("ping");
             next += 1s;
+            apply(set(HW::Pin::led{}));
         }
     }
 }

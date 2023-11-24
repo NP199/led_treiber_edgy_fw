@@ -7,6 +7,7 @@ namespace Pin {
 
     using chip_en = decltype(makePinLocation(Kvasir::Io::port0, Kvasir::Io::pin16));
     using pwm     = decltype(makePinLocation(Kvasir::Io::port0, Kvasir::Io::pin17));
+    using led     = decltype(makePinLocation(Kvasir::Io::port0, Kvasir::Io::pin25));
 }   // namespace Pin
 
 struct I2CConfig {
@@ -29,14 +30,15 @@ struct PinConfig {
       clear(Kvasir::Peripheral::RESETS::Registers<>::RESET::pads_bank0));
 
     static constexpr auto initStepPinConfig = list(
-      makeOutput(HW::Pin::chip_en{}));
+      makeOutput(HW::Pin::chip_en{}),
+      makeOutput(HW::Pin::led{}));
 };
 
 struct PwmConfig {
     static constexpr auto clockSpeed = ClockSpeed;
 
     static constexpr auto top       = 4096;
-    static constexpr auto frequency = 32000;
+    static constexpr auto frequency = 10000;
     static constexpr auto invert    = true;
 };
 
