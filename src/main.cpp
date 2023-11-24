@@ -16,7 +16,7 @@ using packager = aglio::Packager<aglio::CrcConfig<Crc>>;
 
 int main() {
     UC_LOG_D("{}", CMakeGitVersion::FullVersion);
-
+    auto next = Clock::now();
     while(true) {
         auto const now = Clock::now();
         if(now > next) {

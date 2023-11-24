@@ -3,10 +3,10 @@
 namespace HW {
 namespace Pin {
     using i2c_sda = decltype(makePinLocation(Kvasir::Io::port0, Kvasir::Io::pin29));
-    using i2c_sclk = decltype(makePinLocation(Kvasir::Io::port0, Kvasir::Io::pin30));
+    using i2c_scl = decltype(makePinLocation(Kvasir::Io::port0, Kvasir::Io::pin30));
 
     using chip_en = decltype(makePinLocation(Kvasir::Io::port0, Kvasir::Io::pin16));
-    using pwm = decltype(makePinLocation(Kvasir::Io::port0, Kvasir::Io::pin17));
+    using pwm     = decltype(makePinLocation(Kvasir::Io::port0, Kvasir::Io::pin17));
 }   // namespace Pin
 
 struct I2CConfig {
@@ -29,10 +29,10 @@ struct PinConfig {
       clear(Kvasir::Peripheral::RESETS::Registers<>::RESET::pads_bank0));
 
     static constexpr auto initStepPinConfig = list(
-      makeOutput(HW::Pin::chip_en{}),
+      makeOutput(HW::Pin::chip_en{}));
 };
 
-struct PwmConfig{
+struct PwmConfig {
     static constexpr auto clockSpeed = ClockSpeed;
 
     static constexpr auto top       = 4096;
