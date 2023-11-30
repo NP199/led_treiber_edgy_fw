@@ -6,6 +6,7 @@
 #include "kvasir/Util/StaticVector.hpp"
 #include "kvasir/Util/using_literals.hpp"
 #include "remote_fmt/remote_fmt.hpp"
+#include "ALed7709A.hpp"
 
 using packager = aglio::Packager<aglio::CrcConfig<Crc>>;
 /*

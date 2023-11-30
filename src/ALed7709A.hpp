@@ -66,9 +66,9 @@ struct ALED7709A : SharedBusDevice<I2C> {
 
     enum class State { reset, init, idle, write_wait, get_msg, read_wait };
 
-    State                                 ts_;
+    State                                 st_;
     tp                                    waitTime_;
-    std::array<std::optional<std::bytes>> msgraw_;
+    std::array<std::optional<std::byte>, 1> msgraw_;
     std::uint8_t const                    i2caddress;
 
     static constexpr auto startup_time{std::chrono::milliseconds(250)};
@@ -80,7 +80,7 @@ struct ALED7709A : SharedBusDevice<I2C> {
       , waitTime_{tp::min()}
       , i2caddress{devAdress} {}
 
-    std::array<std::optional<std::bytes>> returnMsg() const { return msgraw_; }
+    std::array<std::optional<std::byte>, 1> returnMsg() const { return msgraw_; }
 
     bool valid() const {
         return std::all_of(msgraw_.begin(), msgraw_.end(), [](auto const& msg) {
@@ -166,16 +166,20 @@ struct ALED7709A : SharedBusDevice<I2C> {
                     break;
                 case OS::succeeded:
                     {
-                        st_ = State::idle;
+                        st_       = State::idle;
                         waitTime_ = currentTime;
                         release();
                         std::array<std::byte, readout_packet_size> buffer{};
                         I2C::getReceivedBytes(buffer);
-                        std::uint16_t v;
+                        UC_LOG_D("foo: {}", buffer);
                     }
                     break;
                 case OS::failed:
                     {
+                        st_       = State::idle;
+                        waitTime_ = currentTime + fail_retry_time;
+                        release();
+                        incementErrorCount();
                     }
                     break;
                 }
