@@ -1,6 +1,7 @@
 #pragma once
 #include "HWConfig.hpp"
 ///
+#include "ALed7709A.hpp"
 
 #include "cmake_git_version/version.hpp"
 #include "kvasir/Devices/ADS8675.hpp"
@@ -18,6 +19,8 @@ struct DMAConfig {
 using DMA = Kvasir::DMA::DmaBase<DMAConfig>;
 
 using Pwm = Kvasir::PWM::PWM<HW::Pin::pwm, HW::PwmConfig>;
+using I2C = Kvasir::I2C::I2CBehavior<HW::I2CConfig, Clock, 32>;
+using Aled = Kvasir::ALED7709A<I2C, Clock>;
 
 struct Crc {
     using type = std::uint16_t;
@@ -35,4 +38,5 @@ using Startup = Kvasir::Startup::Startup<
   HW::PinConfig,
   DMA,
   Pwm,
+//  I2C,
   Crc>;

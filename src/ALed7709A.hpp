@@ -37,7 +37,7 @@
 #include <optional>
 
 namespace Kvasir {
-template<typename I2C, typename Clock, std::size_t Channels>
+template<typename I2C, typename Clock>
 struct ALED7709A : SharedBusDevice<I2C> {
     using tp   = typename Clock::time_point;
     using Base = SharedBusDevice<I2C>;
@@ -48,8 +48,6 @@ struct ALED7709A : SharedBusDevice<I2C> {
     using Base::resetErrorCount;
     using Base::resetHandler;
     using OS = typename I2C::OperationState;
-
-    static_assert(Channels <= 4, "Max 4 channels");
 
     //Device Addresse ALED7709A 0x28h
     struct Command {
@@ -97,7 +95,7 @@ struct ALED7709A : SharedBusDevice<I2C> {
         auto const currentTime = Clock::now();
         if(resetHandler()) {
             clear();
-            st_ = State::Reset;
+            st_ = State::reset;
         }
 
         switch(st_) {
@@ -166,6 +164,7 @@ struct ALED7709A : SharedBusDevice<I2C> {
                     break;
                 case OS::succeeded:
                     {
+                        UC_LOG_D("succeeded");
                         st_       = State::idle;
                         waitTime_ = currentTime;
                         release();
@@ -176,6 +175,7 @@ struct ALED7709A : SharedBusDevice<I2C> {
                     break;
                 case OS::failed:
                     {
+                        UC_LOG_D("failed");
                         st_       = State::idle;
                         waitTime_ = currentTime + fail_retry_time;
                         release();
