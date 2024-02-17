@@ -1,0 +1,9 @@
+[submodule "aglio"]
+	path = aglio
+	url = git@github.com:dominicpoeschko/aglio.git
+[submodule "kvasir"]
+	path = kvasir
+	url = git@github.com:kvasir-io/Kvasir_SDK.git
+[submodule "kvasir_devices"]
+	path = kvasir_devices
+	url = git@github.com:kvasir-io/kvasir_devices.git
