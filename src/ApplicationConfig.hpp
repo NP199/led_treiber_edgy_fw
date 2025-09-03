@@ -38,5 +38,5 @@ using Startup = Kvasir::Startup::Startup<
   HW::PinConfig,
   DMA,
   Pwm,
-//  I2C,
+  I2C,
   Crc>;

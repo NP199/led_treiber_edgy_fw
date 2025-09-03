@@ -13,7 +13,7 @@ namespace Pin {
 struct I2CConfig {
     static constexpr auto clockSpeed = ClockSpeed;
 
-    static constexpr auto instance       = 0;
+    static constexpr auto instance       = 1;
     static constexpr auto sdaPinLocation = Pin::i2c_sda{};
     static constexpr auto sclPinLocation = Pin::i2c_scl{};
     static constexpr auto baudRate       = 100'000;
@@ -31,8 +31,6 @@ struct PinConfig {
 
     static constexpr auto initStepPinConfig = list(
       makeOutput(HW::Pin::chip_en{}),
-      makeOutput(HW::Pin::i2c_sda{}),
-      makeOutput(HW::Pin::i2c_scl{}),
       makeOutput(HW::Pin::led{}));
 };
 
