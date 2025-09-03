@@ -15,12 +15,12 @@ using packager = aglio::Packager<aglio::CrcConfig<Crc>>;
   */
 
 int main() {
-    Kvasir::Register::makeOutput(HW::Pin::i2c_sda{});
-    Kvasir::Register::makeOutput(HW::Pin::i2c_scl{});
+    //Kvasir::Register::makeOutput(HW::Pin::i2c_sda{}); // ging nicht musste in HWConfig gesetzt werden
+    //Kvasir::Register::makeOutput(HW::Pin::i2c_scl{}); // ging nicht musste in HWConfig gesetzt werden
     UC_LOG_D("{}", CMakeGitVersion::FullVersion);
 //    Aled ledChip{0x28};
 
-    auto next = Clock::now();
+    auto next   = Clock::now();
     //auto off = Clock::now();
     std::uint16_t Duty = (Pwm::getTop() * (100*255)) / (255*255);
     UC_LOG_D("Duty: {} getTop:{}", Duty, Pwm::getTop());
@@ -30,12 +30,12 @@ int main() {
         auto const now = Clock::now();
 
         if(now > next) {
-            apply(toggle(HW::Pin::i2c_scl{}));
-            apply(toggle(HW::Pin::i2c_sda{}));
+            apply(toggle(HW::Pin::led{}));
+            //apply(toggle(HW::Pin::i2c_scl{}));
+            //apply(toggle(HW::Pin::i2c_sda{}));
             next = Clock::now();
             UC_LOG_D("ping");
             next += 1s;
-            apply(toggle(HW::Pin::led{}));
         }
         //ledChip.handler();
     }

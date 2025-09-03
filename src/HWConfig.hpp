@@ -2,8 +2,8 @@
 #include "HWConfigCommon.hpp"
 namespace HW {
 namespace Pin {
-    using i2c_sda = decltype(makePinLocation(Kvasir::Io::port0, Kvasir::Io::pin28));
-    using i2c_scl = decltype(makePinLocation(Kvasir::Io::port0, Kvasir::Io::pin29));
+    using i2c_sda = decltype(makePinLocation(Kvasir::Io::port0, Kvasir::Io::pin18));
+    using i2c_scl = decltype(makePinLocation(Kvasir::Io::port0, Kvasir::Io::pin19));
 
     using chip_en = decltype(makePinLocation(Kvasir::Io::port0, Kvasir::Io::pin16));
     using pwm     = decltype(makePinLocation(Kvasir::Io::port0, Kvasir::Io::pin17));
@@ -31,6 +31,8 @@ struct PinConfig {
 
     static constexpr auto initStepPinConfig = list(
       makeOutput(HW::Pin::chip_en{}),
+      makeOutput(HW::Pin::i2c_sda{}),
+      makeOutput(HW::Pin::i2c_scl{}),
       makeOutput(HW::Pin::led{}));
 };
 
