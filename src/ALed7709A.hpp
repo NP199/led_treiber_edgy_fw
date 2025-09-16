@@ -52,6 +52,7 @@ struct ALED7709A : SharedBusDevice<I2C> {
     //Device Addresse ALED7709A 0x28h
     struct Command {
         static constexpr std::array getId{std::byte{0x00}};
+        static constexpr std::array getDevEnabled{std::byte{0x01}};
         /*
         static constexpr std::array<std::byte, 1> getID() {
             std::array<std::byte, 1> ret;
@@ -116,7 +117,8 @@ struct ALED7709A : SharedBusDevice<I2C> {
             {
                 if(currentTime > waitTime_ && acquire()) {
                     st_ = State::read_wait;
-                    I2C::send_receive(currentTime, i2caddress, Command::getId, 1);
+                    //I2C::send_receive(currentTime, i2caddress, Command::getId, 1);
+                    I2C::send_receive(currentTime, i2caddress, Command::getDevEnabled, 1);
                 }
             }
             break;
@@ -170,7 +172,7 @@ struct ALED7709A : SharedBusDevice<I2C> {
                         release();
                         std::array<std::byte, readout_packet_size> buffer{};
                         I2C::getReceivedBytes(buffer);
-                        UC_LOG_D("foo: {}", buffer);
+                        UC_LOG_D("foo: {:#X}", buffer);
                     }
                     break;
                 case OS::failed:

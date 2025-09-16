@@ -25,8 +25,8 @@ int main() {
             apply(toggle(HW::Pin::led{}));
             //apply(toggle(HW::Pin::i2c_scl{}));
             //apply(toggle(HW::Pin::i2c_sda{}));
-            next = Clock::now();
             UC_LOG_D("ping");
+            next = Clock::now();
             next += 1s;
         }
         ledChip.handler();
