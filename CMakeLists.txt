@@ -7,7 +7,6 @@ project("Aled7709" VERSION 1.1.0)
 include(kvasir/cmake/util.cmake)
 
 add_subdirectory(aglio)
-add_subdirectory(kvasir_devices)
 
 add_executable(debug src/main.cpp)
 target_configure_kvasir(debug OPTIMIZATION_STRATEGY size USE_LOG)

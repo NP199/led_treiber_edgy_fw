@@ -11,6 +11,11 @@ template<>
 struct ComBackend<uc_log::Tag::User>
   : public uc_log::DefaultRttComBackend<DbgPres, 16384, 16384, rtt::BufferMode::skip> {};
 }   // namespace uc_log
+
+#include "chip/rp_common/PinConfig.hpp"
+
+namespace Kvasir::PinConfig { constexpr ChipVariant CurrentChip = ChipVariant::RP2040; }
+
 // need to be included first
 
 #include "chip/Interrupt.hpp"

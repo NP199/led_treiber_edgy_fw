@@ -467,7 +467,7 @@ struct ALED7709A : SharedBusDevice<I2C> {
                     waitTime_ = currentTime + sensor_read_time;
                     //(void)enable(true);
                     std::array<std::byte, readout_packet_size> buffer{
-                      static_cast<std::byte>(aled7709::Reg::DIMCFG)};
+                      static_cast<std::byte>(aled7709::Reg::DEVSTA)}; //DEVSTA
                       //static_cast<std::byte>(aled7709::Reg::INITSTA)};
                     I2C::send_receive(currentTime, i2caddress, buffer, readout_packet_size);
                     assert(isOwner());
