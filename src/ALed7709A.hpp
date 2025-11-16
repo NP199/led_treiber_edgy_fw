@@ -220,13 +220,13 @@ struct ALED7709A : SharedBusDevice<I2C> {
     }
 
     template<Reg R>
-    bool read8bit(std::byte& receivedValue) {
+    bool read8bit() {
         if(!acquire()) return false;
-        auto const               currentTime = Clock::now();
-        std::array<std::byte, 1> selectedReg{static_cast<std::byte>(R)};
+        auto const                                 currentTime = Clock::now();
+        std::array<std::byte, readout_packet_size> selectedReg{static_cast<std::byte>(R)};
         //I2C::send_receive(currentTime, i2caddress, Command::getId, 1);
         I2C::send_receive(currentTime, i2caddress, selectedReg, readout_packet_size);
-        UC_LOG_D("foo: 0x{:02X}", selectedReg[0]);
+        //UC_LOG_D("foo: 0x{:02X}", selectedReg[0]);
         while(true) {
             switch(I2C::operationState(Clock::now())) {
             case OS::ongoing: continue;
@@ -234,8 +234,13 @@ struct ALED7709A : SharedBusDevice<I2C> {
                 {
                     std::array<std::byte, 1> rx{};
                     I2C::getReceivedBytes(rx);
-                    receivedValue = static_cast<std::byte>(rx[0]);
-                    UC_LOG_D("received: 0x{:02X}", receivedValue);
+                    for(auto const& msg : rx) {
+                        UC_LOG_D(
+                          "reg 0x{:02X}: {:04b} {:04b}",
+                          selectedReg,
+                          msg >> 4,
+                          std::to_integer<uint8_t>(msg) & 0x0F);
+                    }
                     release();
                     return true;
                 }
@@ -249,8 +254,8 @@ struct ALED7709A : SharedBusDevice<I2C> {
 
     template<Reg R>
         requires aled7709::RegReadable<R>
-    bool readReg(std::byte& v) {
-        return read8bit<R>(v);
+    bool readReg() {
+        return read8bit<R>();
     }
 
     template<Reg R>
@@ -322,7 +327,7 @@ struct ALED7709A : SharedBusDevice<I2C> {
     }
 
     bool readEnable() {
-        std::byte test{0x00};
+        std::byte test{static_cast<std::byte>(aled7709::Reg::DEVEN)};
         return readReg<Reg::DEVEN>(test);
     }
 
@@ -379,43 +384,11 @@ struct ALED7709A : SharedBusDevice<I2C> {
             break;
         case State::init:
             {
-                if(currentTime > waitTime_ && acquire()) {
+                if(currentTime > waitTime_) {
                     st_       = State::enable;
                     waitTime_ = currentTime + sensor_read_time;
-                    //(void)enable(true);
-                    std::array<std::byte, readout_packet_size> buffer{
-                      static_cast<std::byte>(aled7709::Reg::DEVEN)};
-                    I2C::send_receive(currentTime, i2caddress, buffer, readout_packet_size);
-                    assert(isOwner());
-                    bool running{true};
-                    while(running) {
-                        switch(I2C::operationState(currentTime)) {
-                        case OS::ongoing:
-                            {
-                            }
-                            break;
-                        case OS::succeeded:
-                            {
-                                waitTime_ = currentTime + sensor_read_time;
-                                std::array<std::byte, readout_packet_size> rx{};
-                                I2C::getReceivedBytes(rx);
-                                for(auto const& msg : rx) {
-                                    UC_LOG_D("msg: 0x{:02X}", msg);
-                                }
-                                running = false;
-                                release();
-                            }
-                            break;
-                        case OS::failed:
-                            {
-                                st_       = State::reset;
-                                waitTime_ = currentTime + fail_retry_time;
-                                running   = false;
-                                release();
-                                incementErrorCount();
-                            }
-                            break;
-                        }
+                    if(readReg<aled7709::Reg::DEVEN>()) {
+                        UC_LOG_D("reading DEVEN");
                     }
                 }
             }
@@ -427,7 +400,9 @@ struct ALED7709A : SharedBusDevice<I2C> {
                     st_       = State::idle;
                     waitTime_ = currentTime + sensor_read_time;
                     //(void)enable(true);
-                    std::array<std::byte, 2> buf{static_cast<std::byte>(aled7709::Reg::DEVEN), static_cast<std::byte>(0x01)};
+                    std::array<std::byte, 2> buf{
+                      static_cast<std::byte>(aled7709::Reg::DEVEN),
+                      static_cast<std::byte>(0x01)};
                     I2C::send(currentTime, i2caddress, buf);
                     UC_LOG_D("buf : 0x{:02X} 0x{:02X}", buf[0], buf[1]);
                     assert(isOwner());
@@ -441,7 +416,7 @@ struct ALED7709A : SharedBusDevice<I2C> {
                         case OS::succeeded:
                             {
                                 waitTime_ = currentTime + sensor_read_time;
-                                running = false;
+                                running   = false;
                                 release();
                             }
                             break;
@@ -462,45 +437,26 @@ struct ALED7709A : SharedBusDevice<I2C> {
 
         case State::idle:
             {
-                if(currentTime > waitTime_ && acquire()) {
+                if(currentTime > waitTime_) {
                     st_       = State::idle;
                     waitTime_ = currentTime + sensor_read_time;
-                    //(void)enable(true);
-                    std::array<std::byte, readout_packet_size> buffer{
-                      static_cast<std::byte>(aled7709::Reg::DEVSTA)}; //DEVSTA
-                      //static_cast<std::byte>(aled7709::Reg::INITSTA)};
-                    I2C::send_receive(currentTime, i2caddress, buffer, readout_packet_size);
-                    assert(isOwner());
-                    bool running{true};
-                    while(running) {
-                        switch(I2C::operationState(currentTime)) {
-                        case OS::ongoing:
-                            {
-                            }
-                            break;
-                        case OS::succeeded:
-                            {
-                                waitTime_ = currentTime + sensor_read_time + std::chrono::milliseconds(1000);
-                                std::array<std::byte, readout_packet_size> rx{};
-                                I2C::getReceivedBytes(rx);
-                                for(auto const& msg : rx) {
-                                    UC_LOG_D("msg: 0x{:02X}", msg);
-                                }
-                                running = false;
-                                release();
-                            }
-                            break;
-                        case OS::failed:
-                            {
-                                st_       = State::idle;
-                                waitTime_ = currentTime + fail_retry_time;
-                                running   = false;
-                                release();
-                                incementErrorCount();
-                            }
-                            break;
-                        }
+                    if(readReg<aled7709::Reg::DEVEN>()) {
+                        UC_LOG_D("reading DEVEN");
                     }
+                    UC_LOG_D(" ");
+                    if(readReg<aled7709::Reg::DEVSTA>()) {
+                        UC_LOG_D("reading DEVSTA");
+                    }
+                    UC_LOG_D(" ");
+                    if(readReg<aled7709::Reg::FMASK>()) {
+                        UC_LOG_D("reading FMASK");
+                    }
+                    UC_LOG_D(" ");
+                    if(readReg<aled7709::Reg::INITSTA>()) {
+                        UC_LOG_D("reading INITSTA");
+                        st_ = State::get_msg;
+                    }
+                    UC_LOG_D(" ");
                 }
             }
             break;
@@ -568,9 +524,9 @@ struct ALED7709A : SharedBusDevice<I2C> {
         case State::get_msg:
             {
                 if(currentTime > waitTime_ && acquire()) {
-                    st_ = State::read_wait;
+                    st_ = State::get_msg;
+                    waitTime_ = currentTime + sensor_read_time;
                     //(void)readEnable();
-                    //waitTime_ = currentTime + sensor_read_time;
                     //release();
                     //I2C::receive(currentTime, i2caddress, readout_packet_size);
                     //std::array<std::byte, readout_packet_size> buffer{};
